@@ -12,9 +12,10 @@ int minDegrees;
 int maxDegrees;
 int minFeedback;
 int maxFeedback;
-int tolerance = 0;
-int l=0,k=0;
-
+int tolerance = 10;
+int l = 15, k = 0;
+int tempPot;
+int tempPott;
 
 File myFile;
 int pinCS = 10;
@@ -38,7 +39,7 @@ int ldrrt = A3;
 int ldrld = A0;
 int ldrrd = A2;
 int feedbackPin = A5;
-int dtime = 30; int tol = 3 ,i ,g ;
+int dtime = 30; int tol = 3 , i , g ;
 int lt; int rt; int ld; int rd;
 int avt; int avd; int avl; int avr; int dvert; int dhoriz;
 int timer = 0;
@@ -96,85 +97,88 @@ void loop() {
 
     ldrRead();
     gunesBul();
-    if ((-15 <= lt-ld && lt-ld <= 15) && (lt - rt <= 15 && lt-rt >= -15)&&(-15 <= rt-rd && rt-rd <= 15) && (ld - rd <= 15 && ld-rd >= -15)) {
+    if ((-15 <= lt - ld && lt - ld <= 15) && (lt - rt <= 15 && lt - rt >= -15) && (-15 <= rt - rd && rt - rd <= 15) && (ld - rd <= 15 && ld - rd >= -15)) {
       yansit();
       timer = 0;
+      tempPot = servov;
       for (int i = 0 ; i < 3000; i++) {
         ldrRead();
         potOku();
         delay(100);
-       
-   
-   while(pot>l||pot<l){
-    l=pot;
-     Serial.print("l:");
-         Serial.println(l);
-        if (l <= 15 ) {
-          int qwe = (15 - l);
-          for(int j = 0;j<=qwe;j++){
-            ver = servov-j;
-            Serial.print("ver1:");
-            Serial.println(ver);
-            vertical.write(ver);   
-            delay(50);     
+///////////////////////////////////////////////////
+        if(pot != l){
+          if(pot-l>0){
+           for(int i = 0;i<(pot-l);i++){
+            tempPot = tempPot+1;
+            vertical.write(tempPot);
+            delay(50);
+           }
           }
-   }
-  
-        else if (l > 15 ) {
-          int asd  =  (l - 15);
-          for(int k = 0;k<=asd;k++){
-            ver = servov+k;
-            Serial.print("ver2:");
-            Serial.println(ver);
-            vertical.write(ver);   
-            delay(50);     
+          else if(pot-l<0){
+            for(int i = 0;i<l-pot;i++){
+            tempPot = tempPot -1;
+            vertical.write(tempPot);
+            delay(50);
+           }
+          } 
         }
-           
-        } 
+/////////////////////////
+        
+        l = pot;
       }
-    }
+           if(tempPot>servov){
+           for(int i = 0;i<tempPot-servov;i++){
+            tempPot = tempPot-1;
+            vertical.write(tempPot);
+            delay(50);
+           }
+          }
+          else if(tempPot<servov){
+            for(int i = 0;i<servov-tempPot;i++){
+            tempPot = tempPot +1;
+            vertical.write(tempPot);
+            delay(50);
+           }
+          } 
+      
+  
       counter++;
       timer++;
-      l==10;
+      l=0;
 
 
     }
   }
 }
-
-
-
-
-
 void calibrate(Servo servo, int analogPin, int minPos, int maxPos) {
 
-for(int i = 270;i>minPos;i--){
-  if(servoh>0){
-    servoh--;
-    servo.write(servoh);
-    delay(15);
+  for (int i = 270; i > minPos; i--) {
+    if (servoh > 0) {
+      servoh--;
+      servo.write(servoh);
+      delay(15);
+    }
+    else {
+      servo.write(minPos);
+      minDegrees = minPos;
+    }
   }
-  else{
-    servo.write(minPos);
-    minDegrees = minPos;
-  }
-}
-delay(1000);
-minFeedback = analogRead(analogPin);
+  delay(1000);
+  minFeedback = analogRead(analogPin);
 
-for(int i = 0;i<maxPos;i++){
-  if(servoh<270){
-    servoh++;
-    servo.write(servoh);
-    delay(15);
+  for (int i = 0; i < maxPos; i++) {
+    if (servoh < 270) {
+      servoh++;
+      servo.write(servoh);
+      delay(15);
+    }
+    else {
+      servo.write(maxPos);
+      maxDegrees = maxPos;
+    }
   }
-  else{
-    servo.write(maxPos);
-    maxDegrees = maxPos;
-  }
-}
-delay(1000);
-maxFeedback = analogRead(analogPin);
+  delay(1000);
+  maxFeedback = analogRead(analogPin);
 
 }
 
@@ -184,10 +188,6 @@ void ldrRead() {
   rt = analogRead(ldrrt); // top right
   ld = analogRead(ldrld); // down left
   rd = analogRead(ldrrd); // down right
-double carpi1 = 1.04708291;
-double carpi2 = 1.02710843;
-double carpi3 = 1.07232704;
-double carpi4 = 1.0333333;
   Serial.print(" ");
   Serial.print(lt );
   Serial.print(" ");
@@ -198,12 +198,6 @@ double carpi4 = 1.0333333;
   Serial.print(rd);
   Serial.println(" ");
 
-
-  lt = int(float(lt)*carpi1);
-   rt = int(float(rt)*carpi2);
-    ld = int(float(lt)*carpi3);
-     rd = int(float(lt)*carpi4);
-
   avt = (lt + rt) / 2; // average value top
   avd = (ld + rd) / 2; // average value down
   avl = (lt + ld) / 2; // average value left
@@ -211,18 +205,6 @@ double carpi4 = 1.0333333;
 
   dvert = avt - avd; // check the diffirence of up and down
   dhoriz = avl - avr;// check the diffirence og left and rigt
-
-
-  Serial.print(" ");
-  Serial.print(lt);
-  Serial.print(" ");
-  Serial.print(rt);
-  Serial.print(" ");
-  Serial.print(ld);
-  Serial.print(" ");
-  Serial.print(rd);
-  Serial.println(" ");
-
 }
 
 void guneyeDon() {
@@ -311,10 +293,10 @@ void karanlikKontrolu() {
 
 void gunesBul() {
   ldrRead();
-  if (lt > 125 || rt > 125 || ld > 125 || rd > 125) {
-    if ((-1) * tol > dvert || dvert > tol ) // check if the diffirence is in the
-    {
-      if (avt>avd)
+  if (lt > 250 || rt > 250 || ld > 250 || rd > 250) {
+    if ((-1) * tol > dvert || dvert > tol ) {// check if the diffirence is in the
+
+      if (avt > avd || lt > ld || rt > rd)
       {
         servov = ++servov;
         if (servov >= servovLimitHigh)
@@ -322,7 +304,7 @@ void gunesBul() {
           servov = servovLimitHigh;
         }
       }
-      else if (avt<avd)
+      else if (avt < avd || lt < ld || rt < rd)
       {
         servov = servov - 1;
         if (servov < servovLimitLow)
@@ -335,10 +317,10 @@ void gunesBul() {
       vertical.write(servov);
 
     }
-    if (-1 * tol > dhoriz || dhoriz > tol || -1 * tol > dvert || dvert > tol) // check if the diffirence is in the
+    if ((-1) * tol > dhoriz || dhoriz > tol ) // check if the diffirence is in the
 
     {
-      if (avl>avr )
+      if (avl > avr )
       {
 
         servoh = --servoh;
@@ -347,7 +329,7 @@ void gunesBul() {
           servoh = servohLimitLow;
         }
       }
-      else if (avl<avr)
+      else if (avl < avr)
       {
         servoh = ++servoh;
         if (servoh > servohLimitHigh)
@@ -369,14 +351,14 @@ void yansit() {
   Serial.print("yakaladık");
   Serial.println(" ");
   if (servov > 100) {
-    for (int i = 0; i < servov * 19 / 30 + 1; i++) {
+    for (int i = 0; i < servov * 16 / 30 + 1; i++) {
       servov = servov - 1;
       vertical.write(servov);
       delay(50);
     }
   }
   else {
-    for (int i = 0; i < servov * 14 / 30 + 1; i++) {
+    for (int i = 0; i < servov * 9 / 30 + 1; i++) {
       servov = servov - 1;
       vertical.write(servov);
       delay(50);
