@@ -4,7 +4,6 @@
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #define ONE_WIRE_BUS 6
-
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
 int x = 0;
