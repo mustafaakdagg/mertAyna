@@ -97,7 +97,7 @@ void loop() {
 
     ldrRead();
     gunesBul();
-    if ((-15 <= lt - ld && lt - ld <= 15) && (lt - rt <= 15 && lt - rt >= -15) && (-15 <= rt - rd && rt - rd <= 15) && (ld - rd <= 15 && ld - rd >= -15)) {
+    if (lt-rd<tol && lt-rd > -tol && rt-ld<tol && rt-ld>-tol) {
       yansit();
       timer = 0;
       tempPot = servov;
@@ -294,9 +294,9 @@ void karanlikKontrolu() {
 void gunesBul() {
   ldrRead();
   if (lt > 250 || rt > 250 || ld > 250 || rd > 250) {
-    if ((-1) * tol > dvert || dvert > tol ) {// check if the diffirence is in the
+    if ( tol > lt-rd || tol>rt-ld || tol > rd-lt|| tol>ld -rt) {// check if the diffirence is in the
 
-      if (avt > avd || lt > ld || rt > rd)
+      if (lt>rd || rt > ld )
       {
         servov = ++servov;
         if (servov >= servovLimitHigh)
@@ -304,7 +304,7 @@ void gunesBul() {
           servov = servovLimitHigh;
         }
       }
-      else if (avt < avd || lt < ld || rt < rd)
+      else if (lt < rd || rt < ld)
       {
         servov = servov - 1;
         if (servov < servovLimitLow)
@@ -313,14 +313,13 @@ void gunesBul() {
         }
       }
       delay(50);
-      //Serial.println("vertical yazdırdık");
       vertical.write(servov);
 
     }
-    if ((-1) * tol > dhoriz || dhoriz > tol ) // check if the diffirence is in the
+    if ( tol > lt-rd || tol>rt-ld || tol > rd-lt|| tol>ld -rt)// check if the diffirence is in the
 
     {
-      if (avl > avr )
+      if (lt>rd || ld>rt)
       {
 
         servoh = --servoh;
@@ -329,7 +328,7 @@ void gunesBul() {
           servoh = servohLimitLow;
         }
       }
-      else if (avl < avr)
+      else if (lt<rd || ld<rt)
       {
         servoh = ++servoh;
         if (servoh > servohLimitHigh)
