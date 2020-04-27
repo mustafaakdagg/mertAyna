@@ -34,12 +34,12 @@ int servov = 90;
 int servovLimitHigh = 180;
 int servovLimitLow = 40;
 
-int ldrlt = A1;
-int ldrrt = A3;
-int ldrld = A0;
-int ldrrd = A2;
+int ldrlt = A3;
+int ldrrt = A1;
+int ldrld = A2;
+int ldrrd = A0;
 int feedbackPin = A5;
-int dtime = 30; int tol = 3 , i , g ;
+int dtime = 30; int tol = 10  ;
 int lt; int rt; int ld; int rd;
 int avt; int avd; int avl; int avr; int dvert; int dhoriz;
 int timer = 0;
@@ -66,7 +66,14 @@ void setup() {
     horizontal.write(servoh - i);
   }
   //  calibrate(horizontal, feedbackPin , 0, 270);
+//851 627 719 681 
+//880 668 748 732
+//959 803 867 882 
 
+//1010
+//980
+//988
+//1010
   for (int i = 0; i < 90; i++) {
     horizontal.write(servoh - i);
   }
@@ -188,6 +195,8 @@ void ldrRead() {
   rt = analogRead(ldrrt); // top right
   ld = analogRead(ldrld); // down left
   rd = analogRead(ldrrd); // down right
+  rt=rt+80;
+ rd=rd+80;
   Serial.print(" ");
   Serial.print(lt );
   Serial.print(" ");
@@ -293,10 +302,10 @@ void karanlikKontrolu() {
 
 void gunesBul() {
   ldrRead();
-  if (lt > 250 || rt > 250 || ld > 250 || rd > 250) {
+  if (lt > 125 || rt > 125 || ld > 125 || rd > 125) {
     if ( tol > lt-rd || tol>rt-ld || tol > rd-lt|| tol>ld -rt) {// check if the diffirence is in the
 
-      if (lt>rd || rt > ld )
+      if (lt>rd && rt > ld )
       {
         servov = ++servov;
         if (servov >= servovLimitHigh)
@@ -304,7 +313,7 @@ void gunesBul() {
           servov = servovLimitHigh;
         }
       }
-      else if (lt < rd || rt < ld)
+      else if (lt < rd && rt < ld)
       {
         servov = servov - 1;
         if (servov < servovLimitLow)
@@ -319,7 +328,7 @@ void gunesBul() {
     if ( tol > lt-rd || tol>rt-ld || tol > rd-lt|| tol>ld -rt)// check if the diffirence is in the
 
     {
-      if (lt>rd || ld>rt)
+      if (lt>rd && ld>rt)
       {
 
         servoh = --servoh;
@@ -328,7 +337,7 @@ void gunesBul() {
           servoh = servohLimitLow;
         }
       }
-      else if (lt<rd || ld<rt)
+      else if (lt<rd && ld<rt)
       {
         servoh = ++servoh;
         if (servoh > servohLimitHigh)
